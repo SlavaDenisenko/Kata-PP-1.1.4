@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private final String tableName = "users";
+    private final String TABLE_NAME = "users";
 
     public UserDaoJDBCImpl() {
     }
@@ -18,8 +18,10 @@ public class UserDaoJDBCImpl implements UserDao {
                 "name VARCHAR(45), lastName VARCHAR(45), age INT)";
 
         try {
-            Statement statement = Util.getConnection().createStatement();
+            Connection connection = Util.getConnection();
+            Statement statement = connection.createStatement();
             statement.execute(sqlCommand);
+            connection.commit();
 
             System.out.println("Таблица успешно создана");
         } catch (SQLException e) {
@@ -29,11 +31,13 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         Util util = new Util(); //в этом методе без создания экземпляра Util не проходят тесты
-        String sqlCommand = "DROP TABLE IF EXISTS " + tableName;
+        String sqlCommand = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         try {
-            Statement statement = util.getConnection().createStatement();
+            Connection connection = util.getConnection();
+            Statement statement = connection.createStatement();
             statement.execute(sqlCommand);
+            connection.commit();
 
             System.out.println("Таблица успешно удалена");
         } catch (SQLException e) {
@@ -42,14 +46,16 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        String sqlCommand = "INSERT INTO " + tableName + " (name, lastName, age) VALUE (?, ?, ?)";
+        String sqlCommand = "INSERT INTO " + TABLE_NAME + " (name, lastName, age) VALUE (?, ?, ?)";
 
         try {
-            PreparedStatement ps = Util.getConnection().prepareStatement(sqlCommand);
+            Connection connection = Util.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sqlCommand);
             ps.setString(1, name);
             ps.setString(2, lastName);
             ps.setByte(3, age);
             ps.executeUpdate();
+            connection.commit();
 
             System.out.println("User с именем – " + name + " добавлен в базу данных");
         } catch (SQLException e) {
@@ -58,12 +64,14 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        String sqlCommand = "DELETE FROM " + tableName + " WHERE id = ?";
+        String sqlCommand = "DELETE FROM " + TABLE_NAME + " WHERE id = ?";
 
         try {
-            PreparedStatement ps = Util.getConnection().prepareStatement(sqlCommand);
+            Connection connection = Util.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sqlCommand);
             ps.setLong(1, id);
             ps.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -71,10 +79,11 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
-        String query = "SELECT * FROM " + tableName;
+        String query = "SELECT * FROM " + TABLE_NAME;
 
         try {
-            Statement statement = Util.getConnection().createStatement();
+            Connection connection = Util.getConnection();
+            Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
@@ -85,6 +94,8 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge(resultSet.getByte(4));
                 list.add(user);
             }
+
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -92,11 +103,13 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        String sqlCommand = "DELETE FROM " + tableName;
+        String sqlCommand = "DELETE FROM " + TABLE_NAME;
 
         try {
-            Statement statement = Util.getConnection().createStatement();
+            Connection connection = Util.getConnection();
+            Statement statement = connection.createStatement();
             statement.executeUpdate(sqlCommand);
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
