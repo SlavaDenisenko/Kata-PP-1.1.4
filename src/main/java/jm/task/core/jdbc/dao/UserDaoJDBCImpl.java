@@ -9,8 +9,10 @@ import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
     private final String TABLE_NAME = "users";
+    private Statement statement;
 
     public UserDaoJDBCImpl() {
+
     }
 
     public void createUsersTable() {
@@ -19,9 +21,15 @@ public class UserDaoJDBCImpl implements UserDao {
 
         try {
             Connection connection = Util.getConnection();
-            Statement statement = connection.createStatement();
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
             statement.execute(sqlCommand);
-            connection.commit();
+
+            try {
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+            }
 
             System.out.println("Таблица успешно создана");
         } catch (SQLException e) {
@@ -30,14 +38,19 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        Util util = new Util(); //в этом методе без создания экземпляра Util не проходят тесты
         String sqlCommand = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         try {
-            Connection connection = util.getConnection();
-            Statement statement = connection.createStatement();
+            Connection connection = Util.getConnection();
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
             statement.execute(sqlCommand);
-            connection.commit();
+
+            try {
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+            }
 
             System.out.println("Таблица успешно удалена");
         } catch (SQLException e) {
@@ -50,12 +63,18 @@ public class UserDaoJDBCImpl implements UserDao {
 
         try {
             Connection connection = Util.getConnection();
+            connection.setAutoCommit(false);
             PreparedStatement ps = connection.prepareStatement(sqlCommand);
             ps.setString(1, name);
             ps.setString(2, lastName);
             ps.setByte(3, age);
             ps.executeUpdate();
-            connection.commit();
+
+            try {
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+            }
 
             System.out.println("User с именем – " + name + " добавлен в базу данных");
         } catch (SQLException e) {
@@ -68,10 +87,16 @@ public class UserDaoJDBCImpl implements UserDao {
 
         try {
             Connection connection = Util.getConnection();
+            connection.setAutoCommit(false);
             PreparedStatement ps = connection.prepareStatement(sqlCommand);
             ps.setLong(1, id);
             ps.executeUpdate();
-            connection.commit();
+
+            try {
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -83,7 +108,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
         try {
             Connection connection = Util.getConnection();
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
@@ -94,8 +119,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge(resultSet.getByte(4));
                 list.add(user);
             }
-
-            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -107,9 +130,15 @@ public class UserDaoJDBCImpl implements UserDao {
 
         try {
             Connection connection = Util.getConnection();
-            Statement statement = connection.createStatement();
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
             statement.executeUpdate(sqlCommand);
-            connection.commit();
+
+            try {
+                connection.commit();
+            } catch (SQLException e) {
+                connection.rollback();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

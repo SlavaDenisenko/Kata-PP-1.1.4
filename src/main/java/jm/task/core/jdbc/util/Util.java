@@ -22,11 +22,21 @@ public class Util {
     private static Connection connection;
 
     public Util() {
+
+    }
+
+    static {
         try {
+            Class.forName(DRIVER);
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+
+            System.out.println("Соединение установлено.");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Драйвер не найден");
+            e.printStackTrace();
         } catch (SQLException e) {
-            System.out.println("Соединение прервано...");
-            System.out.println(e);
+            System.out.println("Соединение не установлено...");
+            e.printStackTrace();
         }
     }
 
